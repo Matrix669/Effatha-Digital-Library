@@ -1,0 +1,2 @@
+- use framer for smooth transitions 😎
+- use some tools to test app
