@@ -103,16 +103,6 @@ const returnBook = async (id: string) => {
 		.eq('id', id)
 	if (error) throw new Error(error.message)
 }
-// const fromReservationToReturnBook = async (id: string) => {
-// 	const borrowDateSupaBase = new Date().toISOString()
-// 	const returnDateSupaBase = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-// 	const { error } = await supabase
-// 		.from('books')
-// 		.update({ state: 'Wypożyczona', borrow_date: borrowDateSupaBase, return_date: returnDateSupaBase })
-// 		.eq('id', id)
-
-// 	if (error) throw new Error(error.message)
-// }
 export const useBookManagement = () => {
 	const queryClient = useQueryClient()
 	const [selectedBooksState, setSelectedBooksState] = useState<BooksProps['state'] | 'Wszystkie'>('Wszystkie')

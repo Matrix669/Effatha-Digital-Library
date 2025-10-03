@@ -1,28 +1,28 @@
-import type { BooksProps } from "./types/types";
+import { BookState, type BooksProps } from "./types/types";
 
 export const books: BooksProps[] = [
     {
-        id: 1,
+        id: '1',
         title: 'Pan Tadeusz',
         author: 'Adam Mickiewicz',
-        state: 'Dostępna',
+        state: BookState.Dostępna,
     },
     {
-        id: 2,
+        id: '2',
         title: 'Wiedźmin: Ostatnie Życzenie',
         author: 'Andrzej Sapkowski',
-        state: 'Wypożyczona',
+        state: BookState.Wypożyczona,
     },
     {
-        id: 3,
+        id: '3',
         title: 'Solaris',
         author: 'Stanisław Lem',
-        state: 'Zarezerwowana',
+        state: BookState.Zarezerwowana,
     },
     {
-        id: 4,
+        id: '4',
         title: 'Lalka',
         author: 'Bolesław Prus',
-        state: 'Do odbioru',
+        state: BookState.DoOdbioru,
     },
 ]
