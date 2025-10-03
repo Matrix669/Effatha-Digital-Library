@@ -1,0 +1,126 @@
+.adminPanel-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin-bottom: 15px;
+	& h1 {
+		font-size: 20px;
+		font-weight: 500;
+	}
+	& p {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		color: #666;
+		& svg {
+			width: 16px;
+			height: 16px;
+		}
+	}
+	& button {
+	}
+	.adminPanel-header__boxBtn {
+		display: grid;
+		gap: 10px;
+	}
+	.adminPanel-header-addButton {
+		background-color: #000;
+		color: #fff;
+
+		&:hover {
+			background-color: #fff;
+			color: #000;
+			border-color: rgba(0, 0, 0, 0.1);
+		}
+		&:hover svg {
+			transform: rotate(180deg) scale(0.75);
+		}
+	}
+	.adminPanel-header-logoutButton {
+		background-color: #fff;
+		border-color: rgba(0, 0, 0, 0.1);
+		&:hover {
+			background-color: #000;
+			color: #fff;
+		}
+	}
+}
+.adminPanel-addNewBook {
+	background-color: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 12px;
+	padding: 24px;
+	max-width: 500px;
+	width: 100%;
+    margin: 0 auto 20px auto;
+    & h2 {
+        font-size: 18px;
+        font-weight: normal;
+        margin-bottom: 24px;
+    }
+	& input {
+		border: none;
+		background-color: rgb(243, 243, 245);
+		height: 36px;
+		padding: 4px 12px;
+		font-size: 14px;
+		border-radius: 6px;
+	}
+    & label {
+        font-weight: 600;
+    }
+    & .adminPanel-addNewBook-boxInputs {
+        display: grid;
+        gap: 15px;
+        & div {
+            display: grid;
+            gap: 10px;
+        }
+        & .adminPanel-addNewBook-boxBtn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+            & button {
+                width: 100%;
+                &:first-child {
+                    color: #fff;
+                    background-color: #000;
+                    &:disabled {
+                        opacity: .6;
+                        cursor: not-allowed;
+                    }
+                }
+                &:last-child {
+                    border-color: #0000001a;
+                }
+            }
+        }
+    }
+}
+.main__body {
+	header > p {
+		border-bottom: 1px solid #0000001a;
+		padding: 16px;
+	}
+}
+
+@media (min-width: 576px) {
+	.adminPanel-header {
+		& h1 {
+			font-size: 28px;
+		}
+		.adminPanel-header__boxBtn {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+	}
+    .adminPanel-addNewBook {
+        & h2 {
+            font-size: 22px;
+        }
+    }
+}

@@ -1,0 +1,19 @@
+.libraryButton {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	height: 36px;
+	padding: 12px;
+	font-size: 14px;
+	background: none;
+	font-weight: 600;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+	& svg {
+		width: 20px;
+		height: 20px;
+		transition: transform 0.3s;
+	}
+}

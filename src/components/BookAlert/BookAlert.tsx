@@ -1,13 +1,8 @@
 import { Info, X } from 'lucide-react'
 import './BookAlert.css'
-import type { ModalAction } from '../../App'
+import type { BookAlertProps } from '../../types/types'
 
-interface BookAlertProps {
-	bookTitle: string
-	bookAuthor: string
-	action: ModalAction
-	handleModal: (book: null, action: null) => void
-}
+
 export default function BookAlert({ bookTitle, bookAuthor, action, handleModal }: BookAlertProps) {
 	const getModalContent = () => {
 		if (action === 'borrow') {

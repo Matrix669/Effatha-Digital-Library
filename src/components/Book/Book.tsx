@@ -1,17 +1,29 @@
-import { Calendar, Clock } from 'lucide-react'
-import type { BooksProps, ModalAction } from '../../App'
+import { Calendar, CircleCheck, Clock, Trash2 } from 'lucide-react'
+import type { BookProps } from '../../types/types'
+import { useBookManagement } from '../../hooks/useBookManagement'
+import LibraryButton from '../LibraryButton/LibraryButton'
 
-interface BookProps {
-	book: {
-        id: number
-		title: string
-		author: string
-		state: 'Dostępna' | 'Wypożyczona' | 'Zarezerwowana' | 'Do odbioru'
-	},
-    getBookStateClass: (state: 'Dostępna' | 'Wypożyczona' | 'Zarezerwowana' | 'Do odbioru') => string;
-	handleModal: (book: BooksProps | null, action: ModalAction) => void
-}
-export default function Book({ book, getBookStateClass, handleModal }: BookProps) {
+export default function Book({ book, getBookStateClass, isAdmin = false }: BookProps) {
+	const { removeBook, returnBook, cancelReservation, confirmPickup, handleModal } = useBookManagement()
+
+	const handleRemove = () => {
+		if (window.confirm('Czy na pewno chcesz usunąć książkę?')) {
+			removeBook(book.id)
+		}
+	}
+
+	const handleReturn = () => {
+		returnBook(book.id)
+	}
+
+	const handleCancelReservation = () => {
+		cancelReservation(book.id)
+	}
+
+	const handleConfirmPickup = () => {
+		confirmPickup(book.id)
+	}
+
 	return (
 		<div key={book.id} className='book'>
 			<div className='book__left'>
@@ -59,10 +71,36 @@ export default function Book({ book, getBookStateClass, handleModal }: BookProps
 					</div>
 				)}
 			</div>
-			{book.state !== 'Do odbioru' && (
-				<button className={`link-book link-${book.state === 'Dostępna' ? 'rent' : 'reserved'}`} onClick={() => handleModal(book, `${book.state === 'Dostępna' ? 'borrow' : 'reserve'}`)}>
-					{book.state === 'Dostępna' ? 'Wypożycz' : 'Zarezerwuj'}
-				</button>
+			{isAdmin ? (
+				<div className='admin-buttons'>
+					<LibraryButton className='btn-remove' onClick={handleRemove}>
+						<Trash2 /> Usuń
+					</LibraryButton>
+					{book.state === 'Wypożyczona' && (
+						<LibraryButton className='btn-return' onClick={handleReturn}>
+							Zwróć książkę
+						</LibraryButton>
+					)}
+					{book.state === 'Zarezerwowana' && (
+						<LibraryButton className='btn-cancel' onClick={handleCancelReservation}>
+							Anuluj rezerwację
+						</LibraryButton>
+					)}
+					{book.state === 'Do odbioru' && (
+						<LibraryButton className='btn-confirm' onClick={handleConfirmPickup}>
+							<CircleCheck /> Potwierdź odbiór
+						</LibraryButton>
+					)}
+				</div>
+			) : (
+				book.state !== 'Do odbioru' && (
+					<LibraryButton
+						className={`link-book link-${book.state === 'Dostępna' ? 'rent' : 'reserved'}`}
+						onClick={() => handleModal(book, `${book.state === 'Dostępna' ? 'borrow' : 'reserve'}`)}
+					>
+						{book.state === 'Dostępna' ? 'Wypożycz' : 'Zarezerwuj'}
+					</LibraryButton>
+				)
 			)}
 		</div>
 	)
