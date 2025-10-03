@@ -1,26 +1,23 @@
 import { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import type { BooksProps, ModalAction, ModalStateProps } from '../types/types'
+import { BookState, type BooksProps, type ModalAction, type ModalStateProps } from '../types/types'
 import { books as initialBooks } from '../data' // Używane tylko lokalnie, przed podłączeniem Supabase
 import { supabase } from '../supabase-client'
 
-// Typy dla Supabase (przykładowe, dostosuj do swojej tabeli)
 interface SupabaseBook {
 	id: string
 	title: string
 	author: string
 	state: BooksProps['state']
-	borrower?: string // Opcjonalne: dla "Wypożyczona" lub "Do odbioru"
-	reserved_by?: string // Opcjonalne: dla "Zarezerwowana"
-	borrow_date?: string // ISO date, np. "2024-01-15"
-	return_date?: string // ISO date
+	borrower?: string | null // Opcjonalne: dla "Wypożyczona" lub "Do odbioru"
+	reserved_by?: string | null // Opcjonalne: dla "Zarezerwowana"
+	borrow_date?: string | null // ISO date, np. "2024-01-15"
+	return_date?: string | null // ISO date
 	created_at?: string
 }
 
-// Funkcje API do Supabase (przygotowane, ale nieaktywne, dopóki nie podłączysz klienta)
 const fetchBooks = async (): Promise<SupabaseBook[]> => {
-	// Przykład dla Supabase:
-	const { data, error } = await supabase.from('books').select('*')
+	const { data, error } = await supabase.from('books').select('*').order('created_at')
 	if (error) {
 		console.error('Błąd pobierania książek: ', error.message)
 		throw new Error(error.message)
@@ -31,48 +28,91 @@ const fetchBooks = async (): Promise<SupabaseBook[]> => {
 		title: book.title,
 		author: book.author,
 		state: book.state as BooksProps['state'],
+		borrower: book.borrower,
+		reserved_by: book.reserved_by,
+		borrow_date: book.borrow_date,
+		return_date: book.return_date,
 	}))
-	// return initialBooks // Tymczasowo zwraca statyczne dane
 }
 
-const updateBookState = async ({ id, newState }: { id: string; newState: BooksProps['state'] }) => {
-	// Przykład dla Supabase:
-	const { error } = await supabase.from('books').update({ state: newState }).eq('id', id)
-	if (error) throw new Error(error.message)
-	// return { id, newState } // Tymczasowo symulacja
+const updateBookState = async ({
+	id,
+	newState,
+	userName,
+}: {
+	id: string
+	newState: BooksProps['state']
+	userName?: string // Opcjonalne, bo nie zawsze potrzebne (np. przy zmianie stanu na 'Dostępna')
+}) => {
+	const updateData: Partial<SupabaseBook> = { state: newState }
+
+	if (newState === BookState.Wypożyczona && userName) {
+		updateData.borrower = userName
+		updateData.borrow_date = new Date().toISOString()
+		updateData.return_date = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 dni od teraz
+		updateData.reserved_by = null // Czyścimy rezerwację, jeśli książka jest wypożyczana
+	} else if (newState === BookState.Zarezerwowana && userName) {
+		updateData.reserved_by = userName
+		updateData.borrower = null // Czyścimy wypożyczającego, jeśli książka jest rezerwowana
+		updateData.borrow_date = new Date().toISOString()
+		updateData.return_date = null
+	} else if (newState === BookState.Dostępna) {
+		updateData.borrower = null
+		updateData.reserved_by = null
+		updateData.borrow_date = null
+		updateData.return_date = null
+	} else if (newState === BookState.DoOdbioru) {
+		updateData.borrower = userName
+		updateData.reserved_by = null
+		updateData.borrow_date = null
+		updateData.return_date = null
+	}
+
+	const { error } = await supabase.from('books').update(updateData).eq('id', id)
+
+	if (error) {
+		console.error('Błąd aktualizacji książki:', error.message)
+		throw new Error(error.message)
+	}
 }
 
 const removeBook = async (id: string) => {
-	// Przykład dla Supabase:
 	const { error } = await supabase.from('books').delete().eq('id', id)
 	if (error) throw new Error(error.message)
-	// return id // Tymczasowo symulacja
 }
 
-const confirmPickup = async (id: string) => {
-	// Przykład dla Supabase:
-	const { error } = await supabase.from('books').update({ state: 'Wypożyczona' }).eq('id', id)
+const confirmPickup = async (data: {id: string, bookBorrower?: string | null}) => {
+	const borrowDateSupaBase = new Date().toISOString()
+	const returnDateSupaBase = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+	const { error } = await supabase
+		.from('books')
+		.update({ state: 'Wypożyczona', borrow_date: borrowDateSupaBase, return_date: returnDateSupaBase, borrower:  data.bookBorrower, reserved_by: null})
+		.eq('id', data.id)
 	if (error) throw new Error(error.message)
-	// return id // Tymczasowo
 }
 
 const cancelReservation = async (id: string) => {
-	// Przykład dla Supabase:
 	const { error } = await supabase.from('books').update({ state: 'Dostępna', reserved_by: null }).eq('id', id)
 	if (error) throw new Error(error.message)
-	// return id // Tymczasowo
 }
 
 const returnBook = async (id: string) => {
-	// Przykład dla Supabase:
 	const { error } = await supabase
 		.from('books')
 		.update({ state: 'Dostępna', borrower: null, borrow_date: null, return_date: null })
 		.eq('id', id)
 	if (error) throw new Error(error.message)
-	// return id // Tymczasowo
 }
+// const fromReservationToReturnBook = async (id: string) => {
+// 	const borrowDateSupaBase = new Date().toISOString()
+// 	const returnDateSupaBase = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+// 	const { error } = await supabase
+// 		.from('books')
+// 		.update({ state: 'Wypożyczona', borrow_date: borrowDateSupaBase, return_date: returnDateSupaBase })
+// 		.eq('id', id)
 
+// 	if (error) throw new Error(error.message)
+// }
 export const useBookManagement = () => {
 	const queryClient = useQueryClient()
 	const [selectedBooksState, setSelectedBooksState] = useState<BooksProps['state'] | 'Wszystkie'>('Wszystkie')

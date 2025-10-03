@@ -5,8 +5,10 @@ import BookList from '../BookList/BookList'
 import { getBookStateClass } from '../../utils/utils'
 import { useBookManagement } from '../../hooks/useBookManagement'
 import LibraryButton from '../LibraryButton/LibraryButton'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BookState } from '../../types/types'
+import { supabase } from '../../supabase-client'
+import { useNavigate } from 'react-router-dom'
 
 export default function AdminPanel() {
 	const { handleModal, selectedBooksState, numberOfBooks, filteredBooks, isLoading, error, addBook } =
@@ -16,6 +18,18 @@ export default function AdminPanel() {
 	const [author, setAuthor] = useState<string>('')
 	const [formError, setFormError] = useState<string>('')
 	const [success, setSuccess] = useState<string>('')
+	const navigate = useNavigate()
+	useEffect(() => {
+		const checkUser = async () => {
+			const {
+				data: { user },
+			} = await supabase.auth.getUser()
+			if (!user) {
+				navigate('/')
+			}
+		}
+		checkUser()
+	}, [navigate])
 
 	const handleModalAddBook = () => {
 		setShowModalAddBook(prev => !prev)
@@ -45,9 +59,13 @@ export default function AdminPanel() {
 			setAuthor('')
 			setShowModalAddBook(false)
 			setTimeout(() => setSuccess(''), 3000)
-		} catch (err: any) {
-			const errorMessage = `Błąd podczas dodawania książki: ${err.message}`
-			setFormError(errorMessage)
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				const errorMessage = `Błąd podczas dodawania książki: ${err.message}`
+				setFormError(errorMessage)
+			}else {
+				setFormError(`Nieoczekiwany błąd: ${err}`)
+			}
 		}
 	}
 
@@ -67,7 +85,13 @@ export default function AdminPanel() {
 					<LibraryButton className='adminPanel-header-addButton' onClick={handleModalAddBook}>
 						<Plus /> Dodaj książkę
 					</LibraryButton>
-					<LibraryButton className='adminPanel-header-logoutButton'>
+					<LibraryButton
+						className='adminPanel-header-logoutButton'
+						onClick={() => {
+							supabase.auth.signOut()
+							navigate('/')
+						}}
+					>
 						<LogOut /> Wyloguj
 					</LibraryButton>
 				</div>

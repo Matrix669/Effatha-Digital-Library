@@ -11,20 +11,12 @@
 	& p {
 		color: #666;
 	}
-	& a {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.5rem;
+	& button {
 		border: 1px solid #0000001a;
 		padding: 0.5rem 1rem;
-		border-radius: 6px;
 		background-color: #fff;
 		color: #000;
-		font-size: 14px;
-		font-weight: 600;
-		& svg {
-			transition: transform 0.3s ease;
-		}
+
 		&:hover svg {
 			transform: rotate(180deg) scale(0.85);
 		}
@@ -161,10 +153,7 @@
 	border-bottom: 0;
 }
 .admin-buttons {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: row-reverse;
+	display: grid;
 	gap: 10px;
 	& button {
 		display: inline-flex;
@@ -258,5 +247,11 @@
 		.book__downInfo {
 			gap: 16px;
 		}
+	}
+	.admin-buttons {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-direction: row-reverse;
 	}
 }

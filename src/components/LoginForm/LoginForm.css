@@ -1,79 +1,80 @@
 .loginForm__container {
-    display: flex;
+	display: flex;
 	align-items: center;
 	justify-content: center;
 	min-height: 100vh;
 }
 .loginForm__box {
-    background-color: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 12px;
-    padding: 24px;
-    max-width: 500px;
-    width: 100%;
-    & a {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 14px;
-        background-color: #000;
-        color: #fff;
-        height: 36px;
-        padding: 12px;
-        border-radius: 6px;
-        font-weight: 600;
-        transition: background-color .3s, color .3s;
-        &:hover {
-            background-color: #fff;
-            color: #000;
-        }
-        &:hover svg {
-            transform: scale(1.15) translateX(-25px);
-            color: #000;
-        }
-        & svg {
-            justify-self: flex-start;
-            width: 16px;
-            height: 16px;
-            transition: transform .3s, color .3s;
-        }
-    }
-    & h1 {
-        text-align: center;
-        font-size: 22px;
-        font-weight: normal;
-        margin: 20px 0;
-    }
-    & .loginForm__form{
-        display: grid;
-        gap: 6px;
-        & label {
-            font-size: 14px;
-        }
-        & input {
-            border: none;
-            background-color: rgb(243, 243, 245);
-            height: 36px;
-            padding: 4px 12px;
-            font-size: 14px;
-            border-radius: 6px;
-        }
-    }
-    & button {
-        background-color: #000;
-        color: #fff;
-        border: none;
-        width: 100%;
-        height: 36px;
-        margin-top: 10px;
-        font-size: 14px;
-        font-weight: 600;
-        transition: border-radius .3s;
-        &:hover {
-            border-radius: 8px;
-        }
-        &:active {
-            border-radius: 26px;
-        }
-    }
+	background-color: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 12px;
+	padding: 24px;
+	max-width: 500px;
+	width: 100%;
+	& a {
+		display: inline-flex;
+		align-items: center;
+		gap: 5px;
+		font-size: 14px;
+		background-color: #000;
+		color: #fff;
+		height: 36px;
+		padding: 12px;
+		border-radius: 6px;
+		font-weight: 600;
+		transition: background-color 0.3s, color 0.3s;
+		&:hover {
+			background-color: #fff;
+			color: #000;
+		}
+		&:hover svg {
+			transform: scale(1.15) translateX(-25px);
+			color: #000;
+		}
+		& svg {
+			justify-self: flex-start;
+			width: 16px;
+			height: 16px;
+			transition: transform 0.3s, color 0.3s;
+		}
+	}
+	& h1 {
+		text-align: center;
+		font-size: 22px;
+		font-weight: normal;
+		margin: 20px 0;
+	}
+	& .loginForm__form {
+		display: grid;
+		gap: 6px;
+		& label {
+			font-size: 14px;
+		}
+		& input {
+			border: none;
+			background-color: rgb(243, 243, 245);
+			height: 36px;
+			padding: 4px 12px;
+			font-size: 14px;
+			border-radius: 6px;
+		}
+	}
+	& button {
+		background-color: #000;
+		color: #fff;
+		border-radius: 0;
+		margin-top: 10px;
+		transition: border-radius 0.3s;
+		&:hover {
+			border-radius: 8px;
+		}
+		&:active {
+			border-radius: 26px;
+		}
+	}
+}
+
+.loginForm-errorText {
+	color: tomato;
+    margin-top: 10px;
 }

@@ -74,6 +74,10 @@
                 font-size: 14px;
                 border-radius: 6px;
             }
+            & p {
+                color: tomato;
+                margin-top: 10px;
+            }
         }
         .bookAlert__form-btnsBox {
             display: flex;
@@ -104,6 +108,14 @@
                         color: #000;
                         background-color: #fff;
                         border-color: #0000001d;
+                    }
+                    &:disabled {
+                        opacity: .6;
+                        cursor: not-allowed;
+                        &:hover {
+                            background-color: #000;
+                            color: #fff;
+                        }
                     }
                 }
             }

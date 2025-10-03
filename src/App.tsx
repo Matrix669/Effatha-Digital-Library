@@ -7,13 +7,20 @@ import BookList from './components/BookList/BookList'
 
 import { getBookStateClass } from './utils/utils'
 
-
 import './App.css'
 import BookFilter from './components/BookFilter/BookFilter'
 
 function App() {
-	const { selectedBooksState, setSelectedBooksState, numberOfBooks, textForNumberOfBooks, handleModal, showModal, filteredBooks } =
-		useBookManagement()
+	const {
+		selectedBooksState,
+		setSelectedBooksState,
+		numberOfBooks,
+		textForNumberOfBooks,
+		handleModal,
+		showModal,
+		filteredBooks,
+		updateBookState
+	} = useBookManagement()
 
 	return (
 		<Wrapper>
@@ -37,8 +44,10 @@ function App() {
 				<BookAlert
 					bookTitle={showModal.book.title}
 					bookAuthor={showModal.book.author}
+					bookId={showModal.book.id}
 					handleModal={handleModal}
 					action={showModal.action}
+					updateBookState={updateBookState}
 				/>
 			)}
 		</Wrapper>

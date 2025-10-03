@@ -19,8 +19,6 @@
 			height: 16px;
 		}
 	}
-	& button {
-	}
 	.adminPanel-header__boxBtn {
 		display: grid;
 		gap: 10px;

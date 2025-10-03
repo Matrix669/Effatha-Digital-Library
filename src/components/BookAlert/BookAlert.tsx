@@ -1,9 +1,43 @@
 import { Info, X } from 'lucide-react'
 import './BookAlert.css'
-import type { BookAlertProps } from '../../types/types'
+import { BookState, type BookAlertProps } from '../../types/types'
+import { useState } from 'react'
 
+export default function BookAlert({
+	bookTitle,
+	bookAuthor,
+	bookId,
+	action,
+	handleModal,
+	updateBookState,
+}: BookAlertProps) {
+	const [userBookName, setUserBookName] = useState<string>('')
 
-export default function BookAlert({ bookTitle, bookAuthor, action, handleModal }: BookAlertProps) {
+	const [formError, setFormError] = useState<string>('')
+
+	const handleForm = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault()
+		setFormError('')
+
+		if (!userBookName.trim()) {
+			setFormError('Wprowadź imię!')
+			return
+		}
+
+		try {
+			const newState = action === 'borrow' ? BookState.DoOdbioru : BookState.Zarezerwowana
+			await updateBookState({ id: bookId, newState, userName: userBookName.trim() })
+			setUserBookName('')
+			handleModal(null, null)
+		} catch (err: unknown) {
+			if (err instanceof Error) {
+				setFormError(`Błąd: ${err.message}`)
+			} else {
+				setFormError(`Nieoczekiwany błąd: ${err}`)
+			}
+		}
+	}
+
 	const getModalContent = () => {
 		if (action === 'borrow') {
 			return {
@@ -52,15 +86,23 @@ export default function BookAlert({ bookTitle, bookAuthor, action, handleModal }
 						</div>
 					)}
 				</main>
-				<form>
+				<form onSubmit={handleForm}>
 					<div className='bookAlert__form-inputBox'>
 						<label htmlFor='name'>Twoje imię</label>
-						<input type='text' placeholder='Wprowadź swoję imię' />
+						<input
+							type='text'
+							placeholder='Wprowadź swoję imię'
+							value={userBookName}
+							onChange={e => setUserBookName(e.target.value)}
+						/>
 					</div>
 					<div className='bookAlert__form-btnsBox'>
 						<button onClick={() => handleModal(null, null)}>Anuluj</button>
-						<button onClick={() => handleModal(null, null)}>Potwierdź</button>
+						<button type='submit' disabled={!userBookName.trim()}>
+							Potwierdź
+						</button>
 					</div>
+					{formError && <p>{formError}</p>}
 				</form>
 			</div>
 		</div>

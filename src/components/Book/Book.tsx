@@ -3,13 +3,11 @@ import type { BookProps } from '../../types/types'
 import { useBookManagement } from '../../hooks/useBookManagement'
 import LibraryButton from '../LibraryButton/LibraryButton'
 
-export default function Book({ book, getBookStateClass, isAdmin = false }: BookProps) {
-	const { removeBook, returnBook, cancelReservation, confirmPickup, handleModal } = useBookManagement()
+export default function Book({ book, getBookStateClass, isAdmin = false, handleModal }: BookProps) {
+	const { removeBook, returnBook, cancelReservation, confirmPickup } = useBookManagement()
 
 	const handleRemove = () => {
-		if (window.confirm('Czy na pewno chcesz usunąć książkę?')) {
-			removeBook(book.id)
-		}
+		removeBook(book.id)
 	}
 
 	const handleReturn = () => {
@@ -21,8 +19,15 @@ export default function Book({ book, getBookStateClass, isAdmin = false }: BookP
 	}
 
 	const handleConfirmPickup = () => {
-		confirmPickup(book.id)
+		confirmPickup({ id: book.id, bookBorrower: book.borrower || book.reserved_by })
 	}
+
+	// const handleChangeFromReservationToReturn = () => {
+
+	//  }
+
+	const niceBorrowDate = book.borrow_date && new Date(book.borrow_date).toLocaleDateString()
+	const niceReturnDate = book.return_date && new Date(book.return_date).toLocaleDateString()
 
 	return (
 		<div key={book.id} className='book'>
@@ -37,35 +42,44 @@ export default function Book({ book, getBookStateClass, isAdmin = false }: BookP
 						{book.state === 'Do odbioru' && (
 							<span>
 								<strong>Wypożyczający: </strong>
-								Anna Kowalska
+								{book.borrower}
 							</span>
 						)}
 						{book.state === 'Zarezerwowana' && (
 							<>
 								<span>
 									<strong>Zarezerwowana przez: </strong>
-									Jan Nowak
+									{book.reserved_by}
 								</span>
-								<span>
-									<Calendar />
-									<strong> Data: </strong> 20.01.2024
-								</span>
+								{niceBorrowDate && (
+									<span>
+										<Calendar />
+										<strong> Data: </strong> {niceBorrowDate}
+									</span>
+								)}
 							</>
 						)}
 						{book.state === 'Wypożyczona' && (
 							<>
-								<span>
-									<strong>Wypożyczający: </strong>
-									Anna Kowalska
-								</span>
-								<span>
-									<Calendar />
-									<strong> Wypożyczona: </strong> 15.01.2024
-								</span>
-								<span>
-									<Clock />
-									<strong> Zwrot do: </strong> 20.02.2024
-								</span>
+								{book.borrower && (
+									<span>
+										<strong>Wypożyczający: </strong>
+										{book.borrower}
+									</span>
+								)}
+
+								{niceBorrowDate && (
+									<span>
+										<Calendar />
+										<strong> Wypożyczona: </strong> {niceBorrowDate}
+									</span>
+								)}
+								{niceReturnDate && (
+									<span>
+										<Clock />
+										<strong> Zwrot do: </strong> {niceReturnDate}
+									</span>
+								)}
 							</>
 						)}
 					</div>
@@ -82,9 +96,14 @@ export default function Book({ book, getBookStateClass, isAdmin = false }: BookP
 						</LibraryButton>
 					)}
 					{book.state === 'Zarezerwowana' && (
-						<LibraryButton className='btn-cancel' onClick={handleCancelReservation}>
-							Anuluj rezerwację
-						</LibraryButton>
+						<>
+							<LibraryButton className='btn-cancel' onClick={handleCancelReservation}>
+								Anuluj rezerwację
+							</LibraryButton>
+							<LibraryButton className='btn-return' onClick={handleConfirmPickup}>
+								Wypożycz książkę
+							</LibraryButton>
+						</>
 					)}
 					{book.state === 'Do odbioru' && (
 						<LibraryButton className='btn-confirm' onClick={handleConfirmPickup}>
@@ -93,7 +112,8 @@ export default function Book({ book, getBookStateClass, isAdmin = false }: BookP
 					)}
 				</div>
 			) : (
-				book.state !== 'Do odbioru' && (
+				book.state !== 'Do odbioru' &&
+				book.state !== 'Zarezerwowana' && (
 					<LibraryButton
 						className={`link-book link-${book.state === 'Dostępna' ? 'rent' : 'reserved'}`}
 						onClick={() => handleModal(book, `${book.state === 'Dostępna' ? 'borrow' : 'reserve'}`)}
