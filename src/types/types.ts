@@ -51,7 +51,7 @@ export interface BookAlertProps {
 	updateBookState: UseMutateFunction<
 		void,
 		Error,
-		{ id: string; newState: BooksProps['state']; userName?: string },
+		{ id: string; newState: BooksProps['state']; borrowerName?: string; reservedByName?: string },
 		unknown
 	>
 }

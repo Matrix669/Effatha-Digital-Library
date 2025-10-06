@@ -38,22 +38,23 @@ const fetchBooks = async (): Promise<SupabaseBook[]> => {
 const updateBookState = async ({
 	id,
 	newState,
-	userName,
+	borrowerName,
+	reservedByName,
 }: {
 	id: string
 	newState: BooksProps['state']
-	userName?: string // Opcjonalne, bo nie zawsze potrzebne (np. przy zmianie stanu na 'Dostępna')
+	borrowerName?: string
+	reservedByName?: string
 }) => {
 	const updateData: Partial<SupabaseBook> = { state: newState }
 
-	if (newState === BookState.Wypożyczona && userName) {
-		updateData.borrower = userName
+	if (newState === BookState.Wypożyczona && borrowerName) {
+		updateData.borrower = borrowerName
 		updateData.borrow_date = new Date().toISOString()
-		updateData.return_date = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 dni od teraz
-		updateData.reserved_by = null // Czyścimy rezerwację, jeśli książka jest wypożyczana
-	} else if (newState === BookState.Zarezerwowana && userName) {
-		updateData.reserved_by = userName
-		updateData.borrower = null // Czyścimy wypożyczającego, jeśli książka jest rezerwowana
+		updateData.return_date = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days for now
+		updateData.reserved_by = null
+	} else if (newState === BookState.Zarezerwowana && reservedByName) {
+		updateData.reserved_by = reservedByName
 		updateData.borrow_date = new Date().toISOString()
 		updateData.return_date = null
 	} else if (newState === BookState.Dostępna) {
@@ -62,7 +63,7 @@ const updateBookState = async ({
 		updateData.borrow_date = null
 		updateData.return_date = null
 	} else if (newState === BookState.DoOdbioru) {
-		updateData.borrower = userName
+		updateData.borrower = borrowerName
 		updateData.reserved_by = null
 		updateData.borrow_date = null
 		updateData.return_date = null
@@ -81,20 +82,63 @@ const removeBook = async (id: string) => {
 	if (error) throw new Error(error.message)
 }
 
-const confirmPickup = async (data: {id: string, bookBorrower?: string | null}) => {
+const confirmPickup = async (data: { id: string; bookBorrower?: string | null }) => {
 	const borrowDateSupaBase = new Date().toISOString()
 	const returnDateSupaBase = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
 	const { error } = await supabase
 		.from('books')
-		.update({ state: 'Wypożyczona', borrow_date: borrowDateSupaBase, return_date: returnDateSupaBase, borrower:  data.bookBorrower, reserved_by: null})
+		.update({
+			state: 'Wypożyczona',
+			borrow_date: borrowDateSupaBase,
+			return_date: returnDateSupaBase,
+			borrower: data.bookBorrower,
+			reserved_by: null,
+		})
 		.eq('id', data.id)
 	if (error) throw new Error(error.message)
 }
 
 const cancelReservation = async (id: string) => {
-	const { error } = await supabase.from('books').update({ state: 'Dostępna', reserved_by: null }).eq('id', id)
-	if (error) throw new Error(error.message)
-}
+	// Pobierz aktualny stan książki i borrower
+	const { data, error: fetchError } = await supabase
+	  .from('books')
+	  .select('state, borrower, borrow_date, return_date')
+	  .eq('id', id)
+	  .single();
+  
+	if (fetchError) {
+	  console.error('Błąd pobierania książki:', fetchError.message);
+	  throw new Error(fetchError.message);
+	}
+  
+	const updateData: Partial<SupabaseBook> = {
+	  reserved_by: null,
+	};
+  
+	if (data.state === BookState.Zarezerwowana && data.borrower) {
+	  // Jeśli książka jest zarezerwowana i ma borrower, wróć do Wypożyczona
+	  updateData.state = BookState.Wypożyczona;
+	  // Zachowaj istniejące borrow_date i return_date, jeśli istnieją
+	  // Jeśli nie istnieją, ustaw nowe (opcjonalne, w zależności od wymagań)
+	  if (!data.borrow_date || !data.return_date) {
+		updateData.borrow_date = new Date().toISOString();
+		updateData.return_date = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+	  }
+	} else {
+	  // Dla DoOdbioru lub Zarezerwowana bez borrower, ustaw Dostępna
+	  updateData.state = BookState.Dostępna;
+	  updateData.borrower = null;
+	  updateData.borrow_date = null;
+	  updateData.return_date = null;
+	}
+  
+	const { error } = await supabase.from('books').update(updateData).eq('id', id);
+  
+	if (error) {
+	  console.error('Błąd anulowania rezerwacji:', error.message);
+	  throw new Error(error.message);
+	}
+  };
 
 const returnBook = async (id: string) => {
 	const { error } = await supabase

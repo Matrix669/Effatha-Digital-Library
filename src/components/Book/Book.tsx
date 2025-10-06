@@ -1,5 +1,5 @@
 import { Calendar, CircleCheck, Clock, Trash2 } from 'lucide-react'
-import type { BookProps } from '../../types/types'
+import { BookState, type BookProps } from '../../types/types'
 import { useBookManagement } from '../../hooks/useBookManagement'
 import LibraryButton from '../LibraryButton/LibraryButton'
 
@@ -19,12 +19,9 @@ export default function Book({ book, getBookStateClass, isAdmin = false, handleM
 	}
 
 	const handleConfirmPickup = () => {
-		confirmPickup({ id: book.id, bookBorrower: book.borrower || book.reserved_by })
+		const borrower = book.state === BookState.Zarezerwowana ? book.reserved_by : book.borrower
+		confirmPickup({ id: book.id, bookBorrower: borrower })
 	}
-
-	// const handleChangeFromReservationToReturn = () => {
-
-	//  }
 
 	const niceBorrowDate = book.borrow_date && new Date(book.borrow_date).toLocaleDateString()
 	const niceReturnDate = book.return_date && new Date(book.return_date).toLocaleDateString()
@@ -48,8 +45,13 @@ export default function Book({ book, getBookStateClass, isAdmin = false, handleM
 						{book.state === 'Zarezerwowana' && (
 							<>
 								<span>
+									<strong>Wypożyczający: </strong>
+									{book.borrower || 'Brak'}
+								</span>
+
+								<span>
 									<strong>Zarezerwowana przez: </strong>
-									{book.reserved_by}
+									{book.reserved_by || 'Brak'}
 								</span>
 								{niceBorrowDate && (
 									<span>
@@ -61,12 +63,10 @@ export default function Book({ book, getBookStateClass, isAdmin = false, handleM
 						)}
 						{book.state === 'Wypożyczona' && (
 							<>
-								{book.borrower && (
-									<span>
-										<strong>Wypożyczający: </strong>
-										{book.borrower}
-									</span>
-								)}
+								<span>
+									<strong>Wypożyczający: </strong>
+									{book.borrower || 'Brak'}
+								</span>
 
 								{niceBorrowDate && (
 									<span>
@@ -106,9 +106,14 @@ export default function Book({ book, getBookStateClass, isAdmin = false, handleM
 						</>
 					)}
 					{book.state === 'Do odbioru' && (
-						<LibraryButton className='btn-confirm' onClick={handleConfirmPickup}>
-							<CircleCheck /> Potwierdź odbiór
-						</LibraryButton>
+						<>
+							<LibraryButton className='btn-cancel' onClick={handleCancelReservation}>
+								Anuluj odbiór
+							</LibraryButton>
+							<LibraryButton className='btn-confirm' onClick={handleConfirmPickup}>
+								<CircleCheck /> Potwierdź odbiór
+							</LibraryButton>
+						</>
 					)}
 				</div>
 			) : (
