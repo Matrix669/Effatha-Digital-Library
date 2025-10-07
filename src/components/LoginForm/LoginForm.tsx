@@ -3,7 +3,7 @@ import './LoginForm.css'
 import { MoveLeft } from 'lucide-react'
 import LibraryButton from '../LibraryButton/LibraryButton'
 import { supabase } from '../../supabase-client'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import type { AuthResponse } from '@supabase/supabase-js'
 
 export default function LoginForm() {
@@ -41,9 +41,9 @@ export default function LoginForm() {
 	return (
 		<div className='loginForm__container'>
 			<div className='loginForm__box'>
-				<a href='/'>
+				<Link to={'/'}>
 					<MoveLeft /> Powrót
-				</a>
+				</Link>
 				<h1>Logowanie Administratora</h1>
 				<form onSubmit={handleAdminLogin} className='loginForm__form'>
 					<label htmlFor='pass'>Hasło</label>
