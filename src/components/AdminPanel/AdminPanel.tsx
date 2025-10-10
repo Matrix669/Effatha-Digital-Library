@@ -9,10 +9,12 @@ import { useEffect, useState } from 'react'
 import { BookState } from '../../types/types'
 import { supabase } from '../../supabase-client'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
 
 export default function AdminPanel() {
 	const { handleModal, selectedBooksState, numberOfBooks, filteredBooks, isLoading, error, addBook } =
 		useBookManagement()
+	const { signOut } = useAuth()
 	const [showModalAddBook, setShowModalAddBook] = useState(false)
 	const [title, setTitle] = useState<string>('')
 	const [author, setAuthor] = useState<string>('')
@@ -63,13 +65,51 @@ export default function AdminPanel() {
 			if (err instanceof Error) {
 				const errorMessage = `Błąd podczas dodawania książki: ${err.message}`
 				setFormError(errorMessage)
-			}else {
+			} else {
 				setFormError(`Nieoczekiwany błąd: ${err}`)
 			}
 		}
 	}
 
-	if (isLoading) return <div className='loading'>Ładowanie książek...</div>
+	if (isLoading)
+		return (
+			<Wrapper>
+				<header className='adminPanel-header'>
+					<div>
+						<h1>Panel Administratora</h1>
+						<p>
+							<BookOpen /> Książek: {numberOfBooks}
+						</p>
+					</div>
+					<div className='adminPanel-header__boxBtn'>
+						<LibraryButton className='adminPanel-header-addButton' onClick={handleModalAddBook}>
+							<Plus /> Dodaj książkę
+						</LibraryButton>
+						<LibraryButton
+							className='adminPanel-header-logoutButton'
+							onClick={async () => {
+								await signOut()
+							}}
+						>
+							<LogOut /> Wyloguj
+						</LibraryButton>
+					</div>
+				</header>
+				<main className='main__body'>
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'center',
+							alignItems: 'center',
+							height: '200px',
+							fontSize: '1.2rem',
+						}}
+					>
+						Ładowanie książek...
+					</div>
+				</main>
+			</Wrapper>
+		)
 	if (error) return <div className='error'>Błąd: {(error as Error).message}</div>
 
 	return (
@@ -87,9 +127,9 @@ export default function AdminPanel() {
 					</LibraryButton>
 					<LibraryButton
 						className='adminPanel-header-logoutButton'
-						onClick={() => {
-							supabase.auth.signOut()
-							navigate('/')
+						onClick={async () => {
+							await signOut()
+							// Nie trzeba navigate('/') - HeaderLibrary to obsłuży
 						}}
 					>
 						<LogOut /> Wyloguj

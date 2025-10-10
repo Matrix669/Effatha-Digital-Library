@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { BookState, type BooksProps, type ModalAction, type ModalStateProps } from '../types/types'
-import { books as initialBooks } from '../data' // Używane tylko lokalnie, przed podłączeniem Supabase
 import { supabase } from '../supabase-client'
 
 interface SupabaseBook {
@@ -154,7 +153,7 @@ export const useBookManagement = () => {
 
 	// Pobieranie książek
 	const {
-		data: books = initialBooks,
+		data: books = [],
 		isLoading,
 		error,
 	} = useQuery({

@@ -4,11 +4,11 @@ import Wrapper from './components/Wrapper/Wrapper'
 import HeaderLibrary from './components/HeaderLibrary/HeaderLibrary'
 import BookAlert from './components/BookAlert/BookAlert'
 import BookList from './components/BookList/BookList'
+import BookFilter from './components/BookFilter/BookFilter'
 
 import { getBookStateClass } from './utils/utils'
 
 import './App.css'
-import BookFilter from './components/BookFilter/BookFilter'
 
 function App() {
 	const {
@@ -19,8 +19,29 @@ function App() {
 		handleModal,
 		showModal,
 		filteredBooks,
-		updateBookState
+		updateBookState,
+		isLoading
 	} = useBookManagement()
+
+// make skeleton while loading books 
+	if (isLoading) {
+		return (
+			<Wrapper>
+				<HeaderLibrary />
+				<main className='main__body'>
+					<div style={{ 
+						display: 'flex', 
+						justifyContent: 'center', 
+						alignItems: 'center', 
+						height: '200px',
+						fontSize: '1.2rem'
+					}}>
+						Ładowanie książek...
+					</div>
+				</main>
+			</Wrapper>
+		)
+	}
 
 	return (
 		<Wrapper>
